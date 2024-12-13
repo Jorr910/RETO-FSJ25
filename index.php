@@ -21,6 +21,55 @@ require_once './clases/Ventas.php';
         return $input;
     }
 
+      
+    //funcion para generar informe de productos sin stock
+    function generarInformeProductosSinStock($inventario) {
+        $productosSinStock = array_filter($inventario->getListaProductos(), function($producto) {
+            return $producto->getStock() == 0;
+        });
+        if (empty($productosSinStock)) {
+            echo "No hay productos sin stock \n";
+        } else {
+            echo "Productos sin stock: \n";
+            foreach ($productosSinStock as $producto) {
+                echo "_" . $producto->getNombre() . "(ID: " . $producto->getId() . ")\n";
+            }
+        }
+    }
+    
+
+    //funcion para generar informe de productos con stock mas bajo 
+    function generarInformeProductosConStockMasBajo($inventario, $stockLimite) {
+        $productosConStockMasBajo = array_filter($inventario->getListaProductos(), function($producto) use ($stockLimite) {
+            return $producto->getStock() < $stockLimite;
+        });
+        if (empty($productosConStockMasBajo)) {
+            echo "No hay productos con stock menor a $stockLimite \n";
+        } else {
+            echo "Productos con stock bajo: \n";
+            foreach ($productosConStockMasBajo as $producto) {
+                echo "_" . $producto->getNombre() . "(Stock: " . $producto->getStock() . " ID: " . $producto->getId() . ")\n";
+            }
+        }
+    }
+    
+
+  //funcion para generar informe de productos de X precio
+  function generarInformeProductosPorPrecio($inventario, $precioLimite) {
+        $productosPorPrecio = array_filter($inventario->getListaProductos(), function($producto) use ($precioLimite) {
+            return $producto->getPrecio() > $precioLimite;
+        });
+        if (empty($productosPorPrecio)) {
+            echo "No hay productos con precio mayor a $precioLimite \n";
+        } else {
+            echo "Productos con precio mayor a $precioLimite: \n";
+            foreach ($productosPorPrecio as $producto) {
+                echo "_" . $producto->getNombre() . "(Precio: $" . $producto->getPrecio() . " ID: " . $producto->getId() . ")\n";
+            }
+        }
+    }
+
+
     // Arreglo a trabajar
 
 
@@ -211,9 +260,36 @@ function ProductoDisponible($inventario) {
 
 
                 break;
+
             case 5:
-                echo "Estas generando un informe \n";
+
+                echo "Seleccione una opcion para generando un informe \n";
+                echo "1. Informe de productos sin stock \n";
+                echo "2. Informe de productos con stock mas bajo \n";
+                echo "3. Informe de productos por precio mayor de X precio \n";
+            
+                // Capturamos la opción del usuario
+                $opcion = prompt("Ingrese la opcion deseada: \n");
+            
+                // Verificamos la opción ingresada y ejecutamos la acción correspondiente
+                switch ($opcion) { // Cambiado de $opcionInforme a $opcion
+                    case 1:
+                        generarInformeProductosSinStock($inventario);
+                        break;
+                    case 2:
+                        $stockBajo = prompt("Ingrese el stock minimo: \n");
+                        generarInformeProductosConStockMasBajo($inventario, $stockBajo);
+                        break;
+                    case 3:
+                        $precioLimite = prompt("Ingrese el precio limite: \n");
+                        generarInformeProductosPorPrecio($inventario, $precioLimite);
+                        break;
+                    default: 
+                        echo "Seleccione una opcion valida \n";
                 break;
+
+                    }
+
             case 6:
                 echo "Estas saliendo ... \n";
                 $flag = false;
